@@ -1,0 +1,36 @@
+API 口径基准: 在职=18 试用=8 待审批=1 离职=2
+
+-- HR：人事概览统计页 --
+计数卡: {"在职人数":"18","试用人数":"8","待审批数":"1","离职人数":"2"}
+  ok: 在职人数=18（应为 18）
+  ok: 试用人数=8（应为 8）
+  ok: 待审批数=1（应为 1）
+  ok: 离职人数=2（应为 2）
+部门在职表: {"heads":["在职人数","部门"],"rows":[["",""],["7","产品部"],["7","技术部"],["4","市场部"]]}
+  ok: 表头含 部门/在职人数: ["在职人数","部门"]
+  API 部门口径: {"产品部":7,"技术部":7,"市场部":4}
+  ok: 页面行与 API 口径一致: {"产品部":"7","技术部":"7","市场部":"4"}
+  shot: n3-hr-overview.png
+
+-- 员工A：无 人事概览 菜单；直接调 charts API 仍仅本人 --
+  ok: 员工菜单无 人事概览: ["我的档案","我的档案","我的档案","我的档案","我的转正","我的转正","我的转正","我的转正"]
+员工 charts 全公司在职计数: {"data":[{"count":1}]}
+  ok: 员工只能数到本人（1），非全公司 18
+
+-- 主管A：无 人事概览 菜单；直接调 charts API 仍仅本组 --
+  ok: 主管菜单无 人事概览: ["我的档案","我的档案","我的档案","我的档案","待我审批","待我审批","待我审批","待我审批"]
+主管 charts 全公司在职计数: {"data":[{"count":7}]}
+  ok: 主管只能数到本组在职（7），非全公司 18
+console-errors:
+[warning] [NocoBase] @nocobase/plugin-mobile is deprecated and may be removed in future versions. Please migrate to the new mobile solution.
+[warning] Action 'openView' is already registered. It will be overwritten.
+[warning] [NocoBase] @nocobase/plugin-mobile is deprecated and may be removed in future versions. Please migrate to the new mobile solution.
+[warning] Action 'openView' is already registered. It will be overwritten.
+[warning] [NocoBase] @nocobase/plugin-mobile is deprecated and may be removed in future versions. Please migrate to the new mobile solution.
+[warning] Action 'openView' is already registered. It will be overwritten.
+[warning] [NocoBase] @nocobase/plugin-mobile is deprecated and may be removed in future versions. Please migrate to the new mobile solution.
+[warning] Action 'openView' is already registered. It will be overwritten.
+[warning] [NocoBase] @nocobase/plugin-mobile is deprecated and may be removed in future versions. Please migrate to the new mobile solution.
+[warning] Action 'openView' is already registered. It will be overwritten.
+[warning] [NocoBase] @nocobase/plugin-mobile is deprecated and may be removed in future versions. Please migrate to the new mobile solution.
+[warning] Action 'openView' is already registered. It will be overwritten.

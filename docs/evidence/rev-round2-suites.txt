@@ -1,0 +1,31 @@
+=== hris-rev fresh rebuild 2026-11-18 13:57:36 ===
+=== verify_permissions ===
+
+=== 结果汇总 ===
+通过 9 / 9
+exit=0
+=== verify_reports ===
+
+=== 结果汇总 ===
+通过 13 / 13
+exit=0
+=== verify_regression ===
+
+=== 结果汇总 ===
+通过 29 / 29
+exit=0
+=== verify_business ===
+
+=== 结果汇总 ===
+通过 25 / 25
+exit=0
+=== verify_unique_binding ===
+
+=== 结果汇总 ===
+通过 18 / 18
+exit=0
+=== verify_unique_binding ===
+
+=== 结果汇总 ===
+通过 22 / 22
+exit=0

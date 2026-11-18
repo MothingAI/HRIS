@@ -1,0 +1,48 @@
+REV-011 备份/恢复清单校验验证（隔离实例 hris-fix，2026-11-18，全部实跑输出）
+
+变更：
+- scripts/backup.ps1：参数化 -Container/-OutputDir；除 pg_dump 外，用同一 SQL 在备份
+  时刻生成 <dump>.manifest.json（public 表清单、9 张关键表计数、员工/申请状态分布、
+  employees."userId" 唯一索引【按列匹配，不依赖索引名】、关系守卫触发器、插件注册）。
+- scripts/restore.ps1：两级探针——
+  探针1（纯目录，不引用业务表）：表清单/唯一索引/触发器；
+  探针2（核心表齐全后）：业务计数/分布/插件。
+  有清单 → 与备份时刻快照逐项比对（表集合、9 项计数、两类状态分布、索引数）；
+  无清单（旧备份）→ 仅结构不变量 + 显式 WARNING。删除写死的 E002=PROBATION/20 员工
+  等固定断言。
+
+===== 正向：审批后+工具新增员工后的备份可完整还原 =====
+$ powershell -NoProfile -File scripts/backup.ps1 -Container hris-fix-postgres-1
+Backup written: backups\hris-backup-20261118-123056.dump (305787 B)
+Manifest written: backups\hris-backup-20261118-123056.dump.manifest.json (5440 B)
+Snapshot: tables=108 employees=24 requests=4 userid_uniq=1 guard=2 plugin=1   exit=0
+（24 员工 = 20 种子 + DEMO-01..04；4 申请 = 2 APPROVED + 1 REJECTED + 1 PENDING；
+  guard=2 = 触发器按 INSERT/UPDATE 两个事件行计）
+
+$ powershell -NoProfile -File scripts/restore.ps1 -BackupFile <上述 dump>
+Restored snapshot: tables=108 employees=24 requests=4 userid_uniq=1 guard=2 plugin=1
+Restore verified against backup-time manifest + structural invariants.   exit=0
+
+===== 场景1：缺表（approval_actions 被删的库导出的备份）=====
+无清单：
+  Restore verification FAILED: core table missing: approval_actions   exit=1
+带正确清单：FAILED 同时列出 core table missing + table count/set differs   exit=1
+
+===== 场景2：丢唯一约束（DROP INDEX 后导出的备份）=====
+该备份内索引名为 employees_user_id_key（插件迁移命名）——列匹配探针不依赖名字：
+  FAILED: employees."userId" unique index missing (lost constraint)   exit=1
+（带清单与不带清单两种方式均拦截）
+
+===== 场景3：截断损坏的备份 =====
+  pg_restore: error: could not read from input file: end of file
+  pg_restore failed (backup corrupted?)   exit=1
+
+===== 场景4：清单与备份不符（篡改 employees=23，实际 24）=====
+  FAILED: key count employees : backup=23 restored=24   exit=1
+
+===== 场景5：旧版无清单备份（2026-11-11 主实例 dump）=====
+  WARNING: No manifest next to backup (pre-REV-011 backup?). Structural checks only;
+  business-content equality is NOT verified.
+  结构不变量全过 → exit=0（结构健全的旧备份可用，但明示未验证业务等价）
+
+人工构造的损坏样本保留在 backups/damaged-*.dump|manifest（git-ignored），供复核。

@@ -1,0 +1,52 @@
+=== verify_unique_binding (fresh first run) ===
+[bind] 目标一致: http://127.0.0.1:13005 / hris-rev-app-1 / hris-rev-postgres-1 (project=hris-rev)
+[PASS] 前置：E002 已绑定账号  -- userId=5
+[PASS] 起点：userId 唯一索引在库  -- uniq=1
+[PASS] fields:create uniqProbeA 返回 200  -- status=200 {"data": {"key": "lqs2r5ix6a3", "collectionName": "employees", "type": "string", "interface": "input", "name": "uniqProb
+[PASS] 建字段 uniqProbeA 后唯一索引仍在  -- uniq=1
+[PASS] fields:create uniqProbeB 返回 200  -- status=200 {"data": {"key": "82xjyt8rgg5", "collectionName": "employees", "type": "string", "interface": "input", "name": "uniqProb
+[PASS] 建字段 uniqProbeB 后唯一索引仍在  -- uniq=1
+[PASS] fields:apply 探针字段成功  -- status=200
+[PASS] fields:apply 后唯一索引仍在  -- uniq=1
+[PASS] 重复 create（已绑定账号）被拒绝  -- status=500 {"errors": [{"message": "HRIS: user already bound to another employee (userId=5)"}]}
+[PASS] 该账号仍只绑定一名员工  -- bound=['E002']
+[PASS] 重复 update 换绑被拒绝  -- status=500 {"errors": [{"message": "HRIS: user already bound to another employee (userId=5)"}]}
+[PASS] E004 绑定未变化  -- user=None
+[PASS] 关系字段直接赋值换绑同样被拒绝  -- status=500 {"errors": [{"message": "HRIS: user already bound to another employee (userId=5)"}]}
+[PASS] 允许多名未绑定（NULL）员工  -- null_employees=16
+[PASS] 并发绑到已绑定账号：全部被拒  -- codes=[500, 500]
+[PASS] 并发首次绑定恰一个成功 [200,非200]  -- codes=[200, 500]
+[PASS] 并发后该账号只绑定一名员工  -- count=1
+[PASS] 清理后 E002 绑定还原  -- user=5
+
+=== 结果汇总 ===
+通过 18 / 18
+exit=0
+=== verify_unique_binding (rerun incl. destroy path) ===
+[bind] 目标一致: http://127.0.0.1:13005 / hris-rev-app-1 / hris-rev-postgres-1 (project=hris-rev)
+[PASS] 前置：E002 已绑定账号  -- userId=5
+[PASS] 起点：userId 唯一索引在库  -- uniq=1
+[PASS] fields:destroy uniqProbeA（重跑重置）成功  -- status=200
+[PASS] 删字段 uniqProbeA 后唯一索引仍在  -- uniq=1
+[PASS] fields:create uniqProbeA 返回 200  -- status=200 {"data": {"key": "8dqemwod1gl", "collectionName": "employees", "type": "string", "interface": "input", "name": "uniqProb
+[PASS] 建字段 uniqProbeA 后唯一索引仍在  -- uniq=1
+[PASS] fields:destroy uniqProbeB（重跑重置）成功  -- status=200
+[PASS] 删字段 uniqProbeB 后唯一索引仍在  -- uniq=1
+[PASS] fields:create uniqProbeB 返回 200  -- status=200 {"data": {"key": "ni4hxrmmyy7", "collectionName": "employees", "type": "string", "interface": "input", "name": "uniqProb
+[PASS] 建字段 uniqProbeB 后唯一索引仍在  -- uniq=1
+[PASS] fields:apply 探针字段成功  -- status=200
+[PASS] fields:apply 后唯一索引仍在  -- uniq=1
+[PASS] 重复 create（已绑定账号）被拒绝  -- status=500 {"errors": [{"message": "HRIS: user already bound to another employee (userId=5)"}]}
+[PASS] 该账号仍只绑定一名员工  -- bound=['E002']
+[PASS] 重复 update 换绑被拒绝  -- status=500 {"errors": [{"message": "HRIS: user already bound to another employee (userId=5)"}]}
+[PASS] E004 绑定未变化  -- user=None
+[PASS] 关系字段直接赋值换绑同样被拒绝  -- status=500 {"errors": [{"message": "HRIS: user already bound to another employee (userId=5)"}]}
+[PASS] 允许多名未绑定（NULL）员工  -- null_employees=16
+[PASS] 并发绑到已绑定账号：全部被拒  -- codes=[500, 500]
+[PASS] 并发首次绑定恰一个成功 [200,非200]  -- codes=[200, 400]
+[PASS] 并发后该账号只绑定一名员工  -- count=1
+[PASS] 清理后 E002 绑定还原  -- user=5
+
+=== 结果汇总 ===
+通过 22 / 22
+exit=0

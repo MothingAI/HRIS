@@ -1,0 +1,3 @@
+[prep] 工具清单集合已创建: prepDemoRegistry（仅 root 可访问）
+[adopt] 已登记: employee=21 user=14 request=87
+[adopt] 清单: {"employees": {"21": "DEMO-01"}}

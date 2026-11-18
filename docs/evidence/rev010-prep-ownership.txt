@@ -1,0 +1,47 @@
+===== C1: normal employee renamed to DEMO-90 + manual request M =====
+----- prep C1-blank ['--blank'] exit=0 -----
+[PASS] 工具清单仅 root 可访问（HR 读取被拒）  -- status=403
+[prep] 空白开始：已清【清单登记】在途单 1 条；非清单在途单保留 0 条（APPROVED/REJECTED 历史与种子数据未动）
+[PASS] 空白模式后无清单在途单  -- remaining=[]
+[prep] 空白演示身份：复用 DEMO-01（登记账号 userId=7，绑定完整）
+[PASS] 空白演示身份可登录  -- email=demo01@example.com
+
+==============================================================
+[prep] 空白路径演示账号：demo01@example.com（密码=.env 的 DEMO_PASSWORD）
+[prep] 员工 DEMO-01（PROBATION，无在途申请）——演示完整走第 2 步：
+[prep]   新建草稿 → 编辑 → 提交 → 主管审批（互斥：勿再跑默认模式）
+==============================================================
+
+[prep] ===== 实时统计（演示话术从这取数，勿写死）=====
+[prep] 员工总数 21 | 在职 19 | 试用 9 | 离职 2
+[prep] 申请：待审批 1 | 已批 0 | 已驳 0（演示审批 1 条后待审批 = 0）
+[prep] 工具演示身份 1 个（清单登记，历史全部保留）
+
+=== 结果汇总 ===
+通过 3 / 3
+
+----- prep C1-default [] exit=0 -----
+[PASS] 工具清单仅 root 可访问（HR 读取被拒）  -- status=403
+[prep] 复用最新工具身份 DEMO-01（PROBATION 且名下无申请）
+[PASS] saveDraft 成功  -- resp={"data": {"submittedAt": null, "decidedAt": null, "id": 27, "employeeId": 21, "approverId": null, "status": "DRAFT", "selfReview": "入职以来完成了演示需求的开发与联调，
+[PASS] submit 成功且 PENDING  -- resp={"data": {"submittedAt": "2026-11-18T05:58:27.704Z", "decidedAt": null, "id": 27, "employeeId": 21, "approverId": 3, "status": "PENDING", "selfReview"
+[PASS] 主管A 待办包含 演示员工01  -- pending=['张敏', '演示员工01']
+
+==============================================================
+[prep] 预填路径演示账号：demo01@example.com（密码=.env 的 DEMO_PASSWORD）
+[prep] 新 PENDING 申请 id=27——演示【跳过第 2 步】，直接从第 3 步
+[prep]   主管审批开始（互斥：欲演示完整草稿流请用 --blank）
+==============================================================
+
+[prep] ===== 实时统计（演示话术从这取数，勿写死）=====
+[prep] 员工总数 21 | 在职 19 | 试用 9 | 离职 2
+[prep] 申请：待审批 2 | 已批 0 | 已驳 0（演示审批 1 条后待审批 = 1）
+[prep] 工具演示身份 1 个（清单登记，历史全部保留）
+
+=== 结果汇总 ===
+通过 4 / 4
+
+Traceback (most recent call last):
+  File "<stdin>", line 68, in <module>
+  File "<stdin>", line 39, in approve_tool_pending
+AssertionError: [{'submittedAt': '2026-11-18T05:58:26.339Z', 'decidedAt': None, 'id': 26, 'employeeId': 3, 'approverId': 3, 'status': 'PENDING', 'selfReview': 'Manual request; not prep_demo', 'trialHarvest': None, 'decisionComment': None, 'version': 1}, {'submittedAt': '2026-11-18T05:58:27.704Z', 'decidedAt': None, 'id': 27, 'employeeId': 21, 'approverId': 3, 'status': 'PENDING', 'selfReview': '入职以来完成了演示需求的开发与联调，请审批转正。', 'trialHarvest': '熟悉了团队的组件规范与发布流程。', 'decisionComment': None, 'version': 1}]

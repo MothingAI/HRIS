@@ -1,0 +1,90 @@
+== verify_permissions ==
+[PASS] 员工A 仅见本人档案  -- count=1 nos=['E002']
+[PASS] 员工A 直接 :get 他人返回 null  -- status=200
+[PASS] 员工A 不能更新本人档案  -- status=403
+[PASS] 员工B 仅见本人档案  -- count=1 nos=['E011']
+[PASS] 主管A 只见本人+直属下属(8人)  -- nos=['E001', 'E002', 'E003', 'E004', 'E005', 'E006', 'E007', 'E008']
+[PASS] 主管B 只见本人+直属下属(7人)  -- nos=['E009', 'E010', 'E011', 'E012', 'E013', 'E014', 'E015']
+[PASS] HR 可见全部员工(20人)  -- count=20
+[PASS] HR 无法直接把员工改为 REGULAR  -- before=PROBATION after=PROBATION
+[PASS] 员工不能用默认 create 绕过受控动作  -- status=403
+
+=== 结果汇总 ===
+通过 9 / 9
+== verify_reports ==
+[PASS] HR 员工总数 20  -- total=20
+[PASS] 在职人数 = 试用+在职 = 18  -- active=18 (PROBATION 8 + REGULAR 10)
+[PASS] 待转正人数 = PROBATION = 8  -- probation=8
+[PASS] 离职人数 2  -- left=2
+[PASS] 部门人数(在职) 技术7/产品7/市场4  -- by_dept={'技术部': 7, '产品部': 7, '市场部': 4}
+[PASS] HR 待审批数初始 0  -- pending=0
+[PASS] 主管A 员工范围仅 8 人(非全公司 20)  -- count=8
+[PASS] 员工A 员工范围仅本人 1 人  -- count=1
+[PASS] 提交后 HR 待审批数 1  -- pending=1
+[PASS] 通过一条后在职仍 18  -- active=18
+[PASS] 通过一条后试用变 7  -- probation=7
+[PASS] 通过一条后待审批数回 0  -- pending=0
+
+=== 结果汇总 ===
+通过 12 / 12
+== verify_regression ==
+[PASS] REV-002 正向：提交 PENDING  -- status=PENDING
+[PASS] REV-002 正向：主管合法通过 200  -- status=APPROVED
+[PASS] REV-002 撤销主管角色后不能审批(403)  -- status=403
+[PASS] REV-002 撤销角色后员工仍 PROBATION  -- E002=PROBATION
+[PASS] REV-002 提交时主管已无审批资格(400)  -- submit={'errors': [{'message': '直属主管账号当前无审批资格，无法提交'}]}
+[PASS] REV-002 HR 不能审批(403)  -- status=403
+[PASS] REV-002 伪造角色请求不能审批(403)  -- status=403
+[PASS] REV-003 employees.userId 唯一索引存在  -- idx_count=1
+[PASS] REV-003 重复 userId create 被拒  -- status=400
+[PASS] REV-003 重复 create 后仍仅 1 条绑定  -- count=1
+[PASS] REV-003 重复 userId update 被拒  -- status=400
+[PASS] REV-003 未绑定(NULL)员工可创建多个  -- status=200
+[PASS] REV-003 并发绑定仅一个成功  -- codes=[200, 400]
+[PASS] REV-003 并发绑定后仅 1 条绑定  -- count=1
+[PASS] REV-004 自己管理自己被拒  -- status=500
+[PASS] REV-004 自管理被拒后 manager 未变  -- manager=9
+[PASS] REV-004 PENDING 时改主管被拒  -- status=500
+[PASS] REV-004 PENDING 时改主管数据不变  -- manager=1
+[PASS] REV-004 无 PENDING 时改主管允许  -- status=200
+[PASS] REV-004 改主管已生效  -- manager=9
+[PASS] REV-005 驳回理由非法(纯空格)被拒  -- status=400
+[PASS] REV-005 驳回理由非法(空字符串)被拒  -- status=400
+[PASS] REV-005 驳回理由非法(换行空白)被拒  -- status=400
+[PASS] REV-005 驳回理由非法(对象)被拒  -- status=400
+[PASS] REV-005 驳回理由非法(数字)被拒  -- status=400
+[PASS] REV-005 驳回缺 comment 被拒  -- status=400
+[PASS] REV-005 合法中文意见驳回成功  -- status=REJECTED
+[PASS] REV-005 驳回后员工仍 PROBATION  -- E002=PROBATION
+[PASS] REV 收尾：manager.a 角色已还原 manager
+
+=== 结果汇总 ===
+通过 29 / 29
+== verify_business (fault inject) ==
+[PASS] 提交后状态 PENDING  -- status=PENDING
+[PASS] 提交后 approver = 直属主管账号  -- approverId=4 expect=4
+[PASS] 通过后状态 APPROVED  -- status=APPROVED
+[PASS] 通过后员工 REGULAR  -- E011=REGULAR
+[PASS] 轨迹完整 [SUBMIT, APPROVE]  -- actions=['SUBMIT', 'APPROVE']
+[PASS] 驳回后状态 REJECTED  -- status=REJECTED
+[PASS] 驳回后员工仍 PROBATION  -- E002=PROBATION
+[PASS] 驳回轨迹 [SUBMIT, REJECT]  -- actions=['SUBMIT', 'REJECT']
+[PASS] 驳回后可再申请(PENDING)  -- status=PENDING
+[PASS] 同一员工不能有第二个 PENDING  -- status=409
+[PASS] 重复提交同一申请被拒绝  -- status=400
+[PASS] 主管A 看不到主管B 的申请  -- vis_a=[]
+[PASS] 主管B 看到自己的待办  -- vis_b=[84]
+[PASS] 非指定审批人不能通过  -- status=403
+[PASS] saveDraft 伪造 status/approver/employee 被剥离  -- status=DRAFT approver=None emp=2
+[PASS] 员工不能审批自己的申请(非approver)  -- status=403
+[PASS] 并发决定仅一个成功(200)，另一个冲突(409)  -- codes=[200, 409]
+[PASS] 并发后只有一个终态  -- status=APPROVED
+[PASS] 并发后轨迹不重复(仅2条)  -- actions=['SUBMIT', 'APPROVE']
+[PASS] 回滚前置：提交 PENDING  -- status=PENDING
+[PASS] 故障注入时通过失败(非200)  -- status=500
+[PASS] 回滚：申请仍 PENDING  -- status=PENDING
+[PASS] 回滚：员工仍 PROBATION  -- E002=PROBATION
+[PASS] 回滚：无 APPROVE 轨迹  -- actions=['SUBMIT']
+
+=== 结果汇总 ===
+通过 24 / 24

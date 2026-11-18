@@ -1,0 +1,35 @@
+$ node .tools/amd-check/probe-n3-lowcode.js
+（运行时间 2026-11-12 11:0x +08:00，最终轮 9/9 ok；前置：python scripts/demo_lowcode_employee_field.py 10/10 PASS）
+
+-- HR：编辑李思远(E002) 填紧急联系人并保存 --
+  ok: 打开 E002 编辑抽屉: clicked
+  ok: 编辑表单出现 紧急联系人 输入框: 王芳 13800001234
+  shot: n3-lowcode-1-edit-empty.png
+  ok: 填入联系人: set
+  shot: n3-lowcode-2-filled.png
+  ok: 点击提交: clicked
+  shot: n3-lowcode-3-saved.png
+
+-- HR：重新打开 E002 回显 --
+  ok: 重新打开: clicked
+  ok: 保存后回显: 王芳 13800001234
+  shot: n3-lowcode-4-reopen.png
+
+-- HR：旧记录 E004（从未填写）正常打开 --
+  ok: 打开 E004: clicked
+  ok: 旧记录值为空且可打开: (empty)
+  shot: n3-lowcode-5-old-record.png
+
+-- 员工A：我的档案出现紧急联系人列与本人值 --
+我的档案: {"heads":["工号","姓名","部门","职位","直属主管","任职状态","紧急联系人",""],"row":"E002李思远技术部软件工程师王建国正式王芳 13800001234"}
+  ok: 表头含 紧急联系人: ["工号","姓名","部门","职位","直属主管","任职状态","紧急联系人",""]
+  ok: 李思远行显示本人值
+  shot: n3-lowcode-6-employee-view.png
+API 复核 E002.emergencyContact = 王芳 13800001234
+  ok: 后端字段持久化（非仅 UI）
+
+说明：
+- n3-lowcode-1 截图拍摄时字段已有值（上一轮已保存过一次，脚本幂等），
+  空值正常打开的证据以 E004 截图（n3-lowcode-5-old-record.png）为准。
+- 提交走原生 update 表单按钮（平台 ACL hr update 白名单含 emergencyContact，
+  由 fields:create 钩子自动追加，见 scripts/demo_lowcode_employee_field.py 断言）。

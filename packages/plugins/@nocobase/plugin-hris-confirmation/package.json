@@ -1,0 +1,13 @@
+{
+  "name": "@nocobase/plugin-hris-confirmation",
+  "displayName": "转正审批",
+  "displayName.zh-CN": "转正审批",
+  "description": "HRIS 转正申请受控动作（保存草稿/提交/通过/驳回）：复用平台会话与数据库，事务 + 行锁 + 版本并发控制。",
+  "description.zh-CN": "HRIS 转正申请受控动作（保存草稿/提交/通过/驳回）：复用平台会话与数据库，事务 + 行锁 + 版本并发控制。",
+  "version": "0.1.0",
+  "main": "dist/server/index.js",
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "@nocobase/server": "2.x"
+  }
+}

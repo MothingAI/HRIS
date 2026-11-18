@@ -1,0 +1,32 @@
+===== C2 =====
+----- prep C2-default [] exit=0 -----
+[PASS] 工具清单仅 root 可访问（HR 读取被拒）  -- status=403
+[prep] 无可复用身份（最新 DEMO-01 已批/已驳/在途/绑定变动，历史保留）
+[prep] 编号 02 碰撞跳过（邮箱 demo02@example.com 已被占用，不接管）
+[prep] 新建工具身份 DEMO-03（历史一律保留）
+[PASS] 创建工具员工 DEMO-03  -- {"data": {"id": 34, "employeeNo": "DEMO-03", "name": "演示员工03", "departmentId": 1, "jobTitle": "演示工程师", "managerId": 1, "status": "PROBATION", "hireDat
+[PASS] 创建账号 demo03@example.com  -- {"data": {"createdAt": "2026-11-18T05:59:19.165Z", "updatedAt": "2026-11-18T05:59:19.165Z", "systemSettings": {}, "id": 12, "email": "demo03@example.c
+[PASS] 新身份账号绑定 DEMO-03  -- user=12
+[PASS] saveDraft 成功  -- resp={"data": {"submittedAt": null, "decidedAt": null, "id": 28, "employeeId": 34, "approverId": null, "status": "DRAFT", "selfReview": "入职以来完成了演示需求的开发与联调，
+[PASS] submit 成功且 PENDING  -- resp={"data": {"submittedAt": "2026-11-18T05:59:19.333Z", "decidedAt": null, "id": 28, "employeeId": 34, "approverId": 3, "status": "PENDING", "selfReview"
+[PASS] 主管A 待办包含 演示员工03  -- pending=['张敏', '演示员工03']
+
+==============================================================
+[prep] 预填路径演示账号：demo03@example.com（密码=.env 的 DEMO_PASSWORD）
+[prep] 新 PENDING 申请 id=28——演示【跳过第 2 步】，直接从第 3 步
+[prep]   主管审批开始（互斥：欲演示完整草稿流请用 --blank）
+==============================================================
+
+[prep] ===== 实时统计（演示话术从这取数，勿写死）=====
+[prep] 员工总数 22 | 在职 20 | 试用 9 | 离职 2
+[prep] 申请：待审批 2 | 已批 1 | 已驳 0（演示审批 1 条后待审批 = 1）
+[prep] 工具演示身份 2 个（清单登记，历史全部保留）
+
+=== 结果汇总 ===
+通过 7 / 7
+
+===== C3 =====
+Traceback (most recent call last):
+  File "<stdin>", line 72, in <module>
+  File "<stdin>", line 12, in call
+AssertionError: ('confirmation_requests:saveDraft', 400, '{"errors":[{"message":"当前员工不是试用状态，无法新建转正申请"}]}')

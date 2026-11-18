@@ -1,0 +1,135 @@
+===== C3-verify (fixed blank assertion): manual N kept, exit 0 =====
+----- prep C3-blank-3 ['--blank'] exit=0 -----
+[PASS] 工具清单仅 root 可访问（HR 读取被拒）  -- status=403
+[prep] 空白开始：已清【清单登记】在途单 1 条；清单员工名下非清单在途单保留 1 条（手工单不删；APPROVED/REJECTED 历史与种子数据未动）
+[PASS] 空白模式后无【清单登记】在途单  -- remaining=[]
+[prep] 空白演示身份：复用 DEMO-05（登记账号 userId=14，绑定完整）
+[PASS] 空白演示身份可登录  -- email=demo05@example.com
+
+==============================================================
+[prep] 空白路径演示账号：demo05@example.com（密码=.env 的 DEMO_PASSWORD）
+[prep] 员工 DEMO-05（PROBATION，无在途申请）——演示完整走第 2 步：
+[prep]   新建草稿 → 编辑 → 提交 → 主管审批（互斥：勿再跑默认模式）
+==============================================================
+
+[prep] ===== 实时统计（演示话术从这取数，勿写死）=====
+[prep] 员工总数 24 | 在职 22 | 试用 10 | 离职 2
+[prep] 申请：待审批 2 | 已批 2 | 已驳 0（演示审批 1 条后待审批 = 1）
+[prep] 工具演示身份 4 个（清单登记，历史全部保留）
+
+=== 结果汇总 ===
+通过 3 / 3
+
+----- prep C3-default-2 [] exit=0 -----
+[PASS] 工具清单仅 root 可访问（HR 读取被拒）  -- status=403
+[prep] 复用最新工具身份 DEMO-05（PROBATION 且名下无申请）
+[PASS] saveDraft 成功  -- resp={"data": {"submittedAt": null, "decidedAt": null, "id": 31, "employeeId": 36, "approverId": null, "status": "DRAFT", "selfReview": "入职以来完成了演示需求的开发与联调，
+[PASS] submit 成功且 PENDING  -- resp={"data": {"submittedAt": "2026-11-18T06:01:02.260Z", "decidedAt": null, "id": 31, "employeeId": 36, "approverId": 3, "status": "PENDING", "selfReview"
+[PASS] 主管A 待办包含 演示员工05  -- pending=['张敏', '演示员工04', '演示员工05']
+
+==============================================================
+[prep] 预填路径演示账号：demo05@example.com（密码=.env 的 DEMO_PASSWORD）
+[prep] 新 PENDING 申请 id=31——演示【跳过第 2 步】，直接从第 3 步
+[prep]   主管审批开始（互斥：欲演示完整草稿流请用 --blank）
+==============================================================
+
+[prep] ===== 实时统计（演示话术从这取数，勿写死）=====
+[prep] 员工总数 24 | 在职 22 | 试用 10 | 离职 2
+[prep] 申请：待审批 3 | 已批 2 | 已驳 0（演示审批 1 条后待审批 = 2）
+[prep] 工具演示身份 4 个（清单登记，历史全部保留）
+
+=== 结果汇总 ===
+通过 4 / 4
+
+===== D =====
+----- prep D-round-1 [] exit=0 -----
+[PASS] 工具清单仅 root 可访问（HR 读取被拒）  -- status=403
+[prep] 无可复用身份（最新 DEMO-05 已批/已驳/在途/绑定变动，历史保留）
+[prep] 新建工具身份 DEMO-06（历史一律保留）
+[PASS] 创建工具员工 DEMO-06  -- {"data": {"id": 37, "employeeNo": "DEMO-06", "name": "演示员工06", "departmentId": 1, "jobTitle": "演示工程师", "managerId": 1, "status": "PROBATION", "hireDat
+[PASS] 创建账号 demo06@example.com  -- {"data": {"createdAt": "2026-11-18T06:01:03.100Z", "updatedAt": "2026-11-18T06:01:03.100Z", "systemSettings": {}, "id": 15, "email": "demo06@example.c
+[PASS] 新身份账号绑定 DEMO-06  -- user=15
+[PASS] saveDraft 成功  -- resp={"data": {"submittedAt": null, "decidedAt": null, "id": 32, "employeeId": 37, "approverId": null, "status": "DRAFT", "selfReview": "入职以来完成了演示需求的开发与联调，
+[PASS] submit 成功且 PENDING  -- resp={"data": {"submittedAt": "2026-11-18T06:01:03.277Z", "decidedAt": null, "id": 32, "employeeId": 37, "approverId": 3, "status": "PENDING", "selfReview"
+[PASS] 主管A 待办包含 演示员工06  -- pending=['张敏', '演示员工04', '演示员工06']
+
+==============================================================
+[prep] 预填路径演示账号：demo06@example.com（密码=.env 的 DEMO_PASSWORD）
+[prep] 新 PENDING 申请 id=32——演示【跳过第 2 步】，直接从第 3 步
+[prep]   主管审批开始（互斥：欲演示完整草稿流请用 --blank）
+==============================================================
+
+[prep] ===== 实时统计（演示话术从这取数，勿写死）=====
+[prep] 员工总数 25 | 在职 23 | 试用 10 | 离职 2
+[prep] 申请：待审批 3 | 已批 3 | 已驳 0（演示审批 1 条后待审批 = 2）
+[prep] 工具演示身份 5 个（清单登记，历史全部保留）
+
+=== 结果汇总 ===
+通过 7 / 7
+
+----- prep D-round-2 [] exit=0 -----
+[PASS] 工具清单仅 root 可访问（HR 读取被拒）  -- status=403
+[prep] 无可复用身份（最新 DEMO-06 已批/已驳/在途/绑定变动，历史保留）
+[prep] 新建工具身份 DEMO-07（历史一律保留）
+[PASS] 创建工具员工 DEMO-07  -- {"data": {"id": 38, "employeeNo": "DEMO-07", "name": "演示员工07", "departmentId": 1, "jobTitle": "演示工程师", "managerId": 1, "status": "PROBATION", "hireDat
+[PASS] 创建账号 demo07@example.com  -- {"data": {"createdAt": "2026-11-18T06:01:04.070Z", "updatedAt": "2026-11-18T06:01:04.070Z", "systemSettings": {}, "id": 16, "email": "demo07@example.c
+[PASS] 新身份账号绑定 DEMO-07  -- user=16
+[PASS] saveDraft 成功  -- resp={"data": {"submittedAt": null, "decidedAt": null, "id": 33, "employeeId": 38, "approverId": null, "status": "DRAFT", "selfReview": "入职以来完成了演示需求的开发与联调，
+[PASS] submit 成功且 PENDING  -- resp={"data": {"submittedAt": "2026-11-18T06:01:04.241Z", "decidedAt": null, "id": 33, "employeeId": 38, "approverId": 3, "status": "PENDING", "selfReview"
+[PASS] 主管A 待办包含 演示员工07  -- pending=['张敏', '演示员工04', '演示员工07']
+
+==============================================================
+[prep] 预填路径演示账号：demo07@example.com（密码=.env 的 DEMO_PASSWORD）
+[prep] 新 PENDING 申请 id=33——演示【跳过第 2 步】，直接从第 3 步
+[prep]   主管审批开始（互斥：欲演示完整草稿流请用 --blank）
+==============================================================
+
+[prep] ===== 实时统计（演示话术从这取数，勿写死）=====
+[prep] 员工总数 26 | 在职 24 | 试用 10 | 离职 2
+[prep] 申请：待审批 3 | 已批 4 | 已驳 0（演示审批 1 条后待审批 = 2）
+[prep] 工具演示身份 6 个（清单登记，历史全部保留）
+
+=== 结果汇总 ===
+通过 7 / 7
+
+===== E =====
+----- prep E-blank ['--blank'] exit=0 -----
+[PASS] 工具清单仅 root 可访问（HR 读取被拒）  -- status=403
+[prep] 空白开始：已清【清单登记】在途单 1 条；清单员工名下非清单在途单保留 1 条（手工单不删；APPROVED/REJECTED 历史与种子数据未动）
+[PASS] 空白模式后无【清单登记】在途单  -- remaining=[]
+[prep] 空白演示身份：复用 DEMO-07（登记账号 userId=16，绑定完整）
+[PASS] 空白演示身份可登录  -- email=demo07@example.com
+
+==============================================================
+[prep] 空白路径演示账号：demo07@example.com（密码=.env 的 DEMO_PASSWORD）
+[prep] 员工 DEMO-07（PROBATION，无在途申请）——演示完整走第 2 步：
+[prep]   新建草稿 → 编辑 → 提交 → 主管审批（互斥：勿再跑默认模式）
+==============================================================
+
+[prep] ===== 实时统计（演示话术从这取数，勿写死）=====
+[prep] 员工总数 26 | 在职 24 | 试用 10 | 离职 2
+[prep] 申请：待审批 2 | 已批 4 | 已驳 0（演示审批 1 条后待审批 = 1）
+[prep] 工具演示身份 6 个（清单登记，历史全部保留）
+
+=== 结果汇总 ===
+通过 3 / 3
+
+===== SUMMARY =====
+{
+  "C3_blank_exit0_keeps_manuals": true,
+  "C3_exit0_no_409": true,
+  "C3_manuals_kept": true,
+  "D_approved_ids": [
+    27,
+    28,
+    31,
+    32
+  ],
+  "D_manual_M_N_kept": true,
+  "D_seeds_unchanged": true,
+  "E_account_printed": "demo07@example.com",
+  "E_login_ok": true,
+  "E_identity": "DEMO-07",
+  "E_probation_no_requests": true
+}
+ALL-BOOLEAN-ASSERTIONS-PASS

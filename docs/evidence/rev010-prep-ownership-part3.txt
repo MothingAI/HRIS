@@ -1,0 +1,29 @@
+===== C3: manual PENDING by tool account demo03 (after blank) =====
+----- prep C3-blank-1 ['--blank'] exit=0 -----
+[PASS] 工具清单仅 root 可访问（HR 读取被拒）  -- status=403
+[prep] 空白开始：已清【清单登记】在途单 0 条；非清单在途单保留 0 条（APPROVED/REJECTED 历史与种子数据未动）
+[PASS] 空白模式后无清单在途单  -- remaining=[]
+[prep] 空白演示身份：清单中无可复用身份（均已批/已驳/绑定变动），新建 DEMO-04
+[PASS] 创建工具员工 DEMO-04  -- {"data": {"id": 35, "employeeNo": "DEMO-04", "name": "演示员工04", "departmentId": 1, "jobTitle": "演示工程师", "managerId": 1, "status": "PROBATION", "hireDat
+[PASS] 创建账号 demo04@example.com  -- {"data": {"createdAt": "2026-11-18T05:59:47.997Z", "updatedAt": "2026-11-18T05:59:47.997Z", "systemSettings": {}, "id": 13, "email": "demo04@example.c
+[PASS] 新身份账号绑定 DEMO-04  -- user=13
+[PASS] 空白演示身份可登录  -- email=demo04@example.com
+
+==============================================================
+[prep] 空白路径演示账号：demo04@example.com（密码=.env 的 DEMO_PASSWORD）
+[prep] 员工 DEMO-04（PROBATION，无在途申请）——演示完整走第 2 步：
+[prep]   新建草稿 → 编辑 → 提交 → 主管审批（互斥：勿再跑默认模式）
+==============================================================
+
+[prep] ===== 实时统计（演示话术从这取数，勿写死）=====
+[prep] 员工总数 23 | 在职 21 | 试用 9 | 离职 2
+[prep] 申请：待审批 1 | 已批 2 | 已驳 0（演示审批 1 条后待审批 = 0）
+[prep] 工具演示身份 3 个（清单登记，历史全部保留）
+
+=== 结果汇总 ===
+通过 6 / 6
+
+Traceback (most recent call last):
+  File "<stdin>", line 48, in <module>
+  File "<stdin>", line 12, in call
+AssertionError: ('confirmation_requests:saveDraft', 400, '{"errors":[{"message":"当前员工不是试用状态，无法新建转正申请"}]}')

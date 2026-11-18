@@ -1,0 +1,50 @@
+REV-012 干净实例按文档原样重跑（2026-11-18，全部实跑输出）
+
+实例：新 Compose 项目 hris-doc（hris-doc-app-1 / hris-doc-postgres-1，端口 13005，
+空库起）。执行方式：按 docs/REPRODUCE.md §6 当前文本原样（PowerShell 语句经
+powershell.exe -NoProfile -Command 执行；唯一差异：$env:EVID_PREFIX='fix-' 给
+截图名加前缀，避免覆盖既有证据截图——该可选项已写进 §6 注释）。
+
+===== §6 步骤 1：隔离实例 =====
+$env:APP_HOST_PORT='13005'; docker compose -p hris-doc --env-file .env -f deploy/compose.yaml up -d
+→ Container hris-doc-postgres-1 Healthy / hris-doc-app-1 Started
+
+===== §6 步骤 2：全链种子（三 NB_* 变量同显式，seed 第一步 target_binding --check）=====
+$env:NB_BASE='http://127.0.0.1:13005'; $env:NB_APP_CONTAINER='hris-doc-app-1';
+$env:NB_DB_CONTAINER='hris-doc-postgres-1'; seed.ps1 -WithDemo
+→ exit=0。Seed done (idempotent). 全链含 S2/S3/重启/UI/trialHarvest/字段元数据/
+页面/紧急联系人字段（fields:create 后 uniq_idx=1 —— REV-003 平台模型防线生效，
+重申仅兜底）/ FK 列 20/20 可读 / prep_demo 新建 DEMO-01 PENDING（主管A 待办含
+演示员工01）。
+
+过程中发现并修复的文档/脚本缺陷（重跑即绿，全部留痕）：
+1. seed.ps1/backup.ps1/restore.ps1 无 BOM 时 PS5.1 把 UTF-8 中文注释按 ANSI 解析
+   → 语法错误；三个脚本补 UTF-8 BOM 后按文档原样通过。
+2. verify_permissions 主管范围断言写死 8 人：DEMO-01（直属 E001）加入后误报。
+   改为按全量数据推导（本人+直属下属集合精确相等），同轮 9/9。
+3. probe-n3-stats.js 主管本组计数写死 7：同因误报。改为按主管自身数据范围
+   推导期望值（本轮 8=本组在职），探针 10 ok。
+
+===== §6 步骤 3：四套件（沿用已设三变量；故障注入 HRIS_ALLOW_FAULT_INJECT=1）=====
+verify_permissions   9/9    exit=0（主管/HR 范围为数据推导断言）
+verify_reports      13/13   exit=0（RPT-TEST 工具数据相对变化断言；清理后回基线）
+verify_regression   29/29   exit=0（[bind] 目标一致: ...13005 / hris-doc-app-1 /
+                            hris-doc-postgres-1 (project=hris-doc)）
+verify_business     25/25   exit=0（含故障注入回滚段；+1 为 REV-007 绑定核验项）
+verify_unique_binding 18/18  exit=0（干净首跑：连续建 uniqProbeA/B + fields:apply
+                            后唯一索引全程在库；重复 create/update/关系赋值/并发
+                            绑定全被拒——细节同 rev03-unique-binding-probe.txt）
+
+===== §6 步骤 4：浏览器探针（$env:BASE/CDP_PORT 语法 + EVID_PREFIX）=====
+probe-n3-stats.js  exit=0，10 项全 ok：
+  在职=19 试用=9 待审批=1 离职=2（卡片与 API 口径相等）；
+  部门表 产品7/市场4/技术8 与 API 一致；
+  员工/主管菜单无人事概览；charts 直查：员工=1（本人）、主管=8（=本组在职，
+  按数据范围推导），非全公司 19。截图 fix-n3-hr-overview.png。
+probe-n3-lowcode.js exit=0，11 项全 ok：
+  E002 编辑抽屉出现紧急联系人→填写→提交→重开回显；E004 旧记录可开值为空；
+  我的档案列头+本人值；后端持久化。截图 fix-n3-lowcode-1..6.png。
+
+===== 结论 =====
+当前版本文档（含 REV-007 变量顺序/PS 语法修正）在干净环境可原样复现全绿；
+本文件与 fix-*.png 为该轮证据。hris-doc 验证后按 §7 约定销毁（down -v）。

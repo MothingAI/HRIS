@@ -1,0 +1,42 @@
+=== REV-011 final run: concurrent-write backup, shared snapshot (2026-11-18 14:10:36) ===
+== Shared-snapshot backup in hris-rev-postgres-1 (dump + manifest, one PG snapshot) ==
+SNAPSHOT=00000005-00000283-1
+BACKUP-INCONTAINER-OK bytes=313497 manifest_bytes=2506
+Backup written: backups\rev011-test\hris-backup-20261118-141040.dump
+Manifest written: backups\rev011-test\hris-backup-20261118-141040.dump.manifest.json (snapshot=00000005-00000283-1)
+Snapshot: tables=109 employees=27 requests=6 userid_uniq=1 guard=2 plugin=1
+Restore with: powershell -NoProfile -File .\scripts\restore.ps1 -BackupFile "backups\rev011-test\hris-backup-20261118-141040.dump"
+BACKUP-EXIT=0
+PROBE-EXIT=0
+并发写入持续
+rounds=105
+DUMP=backups/rev011-test/hris-backup-20261118-141040.dump
+manifest: snapshot_id=00000005-00000283-1 sha=6390beaa9133d77f... employees=27 requests=6
+
+=== restore: concurrent writes during backup must NOT break restore (expect exit 0) ===
+dump sha256 verified against manifest.
+Restored snapshot: tables=109 employees=27 requests=6 userid_uniq=1 guard=2 plugin=1
+Restore verified against backup-time manifest + structural invariants (isolated; running instance untouched).
+RESTORE-EXIT=0
+=== negative: tampered manifest (employees+1) -> restore must exit 1 ===
+tampered manifest written: backups/rev011-test/hris-backup-20261118-141040.dump.bad-manifest.json
+RESTORE-BAD-MANIFEST-EXIT=0
+
+=== negative: truncated dump -> sha256 pre-check must exit 1 ===
+truncated dump written: 156748 of 313497 bytes
+E:\Project\Spring\scripts\restore.ps1 : dump sha256 mismatch: manifest=6390beaa9133d77f83bbf965eb93eca31342f868aba42f3a
++ ...  Write-Error "dump sha256 mismatch: manifest=$($m.dump_sha256) actual ...
+    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException
+RESTORE-TRUNCATED-EXIT=1
+
+=== negative retry: tampered manifest via correct path -> exit 1 ===
+dump sha256 verified against manifest.
+E:\Project\Spring\scripts\restore.ps1 : Restore verification FAILED: key count employees : backup=28 restored=27
++         Write-Error ("Restore verification FAILED: " + ($failures -jo ...
+    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException
+RESTORE-BAD-MANIFEST-EXIT=1
+
+=== negative retry: nonexistent explicit manifest path -> exit 1 (no silent fallback) ===
+E:\Project\Spring\scripts\restore.ps1 : Manifest not found: backups/rev011-test/nope.json (explicitly specified; refusi
++     Write-Error "Manifest not found: $Manifest (explicitly specified; ...
+RESTORE-MISSING-MANIFEST-EXIT=1

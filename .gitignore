@@ -1,0 +1,36 @@
+# Local secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Runtime and dependency directories
+node_modules/
+dist/
+# 自研插件的 dist/ 是手写源码（非构建产物），必须保留入库
+!packages/plugins/@nocobase/plugin-hris-confirmation/dist/
+build/
+coverage/
+*.log
+data/
+storage/
+backups/
+playwright-report/
+test-results/
+__pycache__/
+*.pyc
+
+# Local analysis workspace (client bundle extraction, browser probes, scratch)
+# UI evidence screenshots are copied into docs/evidence/ for the record
+.tools/
+
+# Local exports and session artifacts
+*.dump
+*.dump.manifest.json
+
+# OS/editor local files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,53 @@
+===== C3: manual PENDING by tool account demo04 =====
+----- prep C3-blank-2 ['--blank'] exit=1 -----
+[PASS] 工具清单仅 root 可访问（HR 读取被拒）  -- status=403
+[prep] 空白开始：已清【清单登记】在途单 0 条；非清单在途单保留 1 条（APPROVED/REJECTED 历史与种子数据未动）
+[FAIL] 空白模式后无清单在途单  -- remaining=[29]
+[prep] 空白演示身份：清单中无可复用身份（均已批/已驳/绑定变动），新建 DEMO-05
+[PASS] 创建工具员工 DEMO-05  -- {"data": {"id": 36, "employeeNo": "DEMO-05", "name": "演示员工05", "departmentId": 1, "jobTitle": "演示工程师", "managerId": 1, "status": "PROBATION", "hireDat
+[PASS] 创建账号 demo05@example.com  -- {"data": {"createdAt": "2026-11-18T06:00:24.456Z", "updatedAt": "2026-11-18T06:00:24.456Z", "systemSettings": {}, "id": 14, "email": "demo05@example.c
+[PASS] 新身份账号绑定 DEMO-05  -- user=14
+[PASS] 空白演示身份可登录  -- email=demo05@example.com
+
+==============================================================
+[prep] 空白路径演示账号：demo05@example.com（密码=.env 的 DEMO_PASSWORD）
+[prep] 员工 DEMO-05（PROBATION，无在途申请）——演示完整走第 2 步：
+[prep]   新建草稿 → 编辑 → 提交 → 主管审批（互斥：勿再跑默认模式）
+==============================================================
+
+[prep] ===== 实时统计（演示话术从这取数，勿写死）=====
+[prep] 员工总数 24 | 在职 22 | 试用 10 | 离职 2
+[prep] 申请：待审批 2 | 已批 2 | 已驳 0（演示审批 1 条后待审批 = 1）
+[prep] 工具演示身份 4 个（清单登记，历史全部保留）
+
+=== 结果汇总 ===
+通过 5 / 6
+  失败: 空白模式后无清单在途单 -- remaining=[29]
+
+
+----- prep C3-default [] exit=0 -----
+[PASS] 工具清单仅 root 可访问（HR 读取被拒）  -- status=403
+[prep] 复用最新工具身份 DEMO-05（PROBATION 且名下无申请）
+[PASS] saveDraft 成功  -- resp={"data": {"submittedAt": null, "decidedAt": null, "id": 30, "employeeId": 36, "approverId": null, "status": "DRAFT", "selfReview": "入职以来完成了演示需求的开发与联调，
+[PASS] submit 成功且 PENDING  -- resp={"data": {"submittedAt": "2026-11-18T06:00:25.476Z", "decidedAt": null, "id": 30, "employeeId": 36, "approverId": 3, "status": "PENDING", "selfReview"
+[PASS] 主管A 待办包含 演示员工05  -- pending=['张敏', '演示员工04', '演示员工05']
+
+==============================================================
+[prep] 预填路径演示账号：demo05@example.com（密码=.env 的 DEMO_PASSWORD）
+[prep] 新 PENDING 申请 id=30——演示【跳过第 2 步】，直接从第 3 步
+[prep]   主管审批开始（互斥：欲演示完整草稿流请用 --blank）
+==============================================================
+
+[prep] ===== 实时统计（演示话术从这取数，勿写死）=====
+[prep] 员工总数 24 | 在职 22 | 试用 10 | 离职 2
+[prep] 申请：待审批 3 | 已批 2 | 已驳 0（演示审批 1 条后待审批 = 2）
+[prep] 工具演示身份 4 个（清单登记，历史全部保留）
+
+=== 结果汇总 ===
+通过 4 / 4
+
+===== D =====
+Traceback (most recent call last):
+  File "<stdin>", line 65, in <module>
+  File "<stdin>", line 37, in approve_tool_pending
+AssertionError: [(29, 35), (30, 36)]

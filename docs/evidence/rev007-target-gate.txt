@@ -1,0 +1,41 @@
+=== N1: explicit MAIN targets + fault flag -> must FAIL before any write ===
+[FAIL] 测试写入门禁: 目标绑定校验失败 -> 目标 hris 是主部署项目（compose.yaml name=hris）——测试写入被拒绝; 目标命中主实例缺省值（base=http://127.0.0.1:13000 app=hris-app-1 db=hris-postgres-1）——测试写入被拒绝
+exit=1
+
+=== N2: default (no explicit) + fault flag -> must FAIL ===
+[FAIL] 测试写入门禁: 拒绝执行——NB_BASE / NB_APP_CONTAINER / NB_DB_CONTAINER 必须全部显式指向同一隔离实例（不允许缺省）
+exit=1
+
+=== N3: cross-project (app=hris-rev, db=hris-fix) -> must FAIL ===
+[FAIL] 测试写入门禁: 目标绑定校验失败 -> app 与 DB 不在同一 Compose 项目: hris-rev-app-1=hris-rev vs hris-fix-postgres-1=hris-fix
+exit=1
+
+=== N4: non-loopback host, same port -> must FAIL ===
+[FAIL] 测试写入门禁: 目标绑定校验失败 -> API 不可达: http://192.168.1.64:13005/api/app:getInfo
+exit=1
+
+=== N5: cross-check --check (same-source only) with explicit main -> allowed (seed path) ===
+[OK] 目标绑定一致: base=http://127.0.0.1:13000 app=hris-app-1 db=hris-postgres-1 project=hris (显式)
+exit=0
+
+=== P1: proper isolated project -> must PASS ===
+[OK] 目标绑定一致: base=http://127.0.0.1:13005 app=hris-rev-app-1 db=hris-rev-postgres-1 project=hris-rev (写入门禁（显式隔离实例，非主项目）)
+exit=0
+=== U1 (unit): loopback-host gate branch ===
+parse http://192.168.1.64:13005 -> ('http', '192.168.1.64', 13005) OK
+parse http://127.0.0.1:13005 -> ('http', '127.0.0.1', 13005) OK
+parse http://localhost -> ('http', 'localhost', 80) OK
+parse https://hris.example.com -> ('https', 'hris.example.com', 443) OK
+parse http://[::1]:13005 -> ('http', '::1', 13005) OK
+unit loopback gate rejected (api simulated alive): unit loopback: 目标绑定校验失败 -> NB_BASE 主机 192.168.1.64 不是回环地址——测试写入只允许本机隔离实例
+
+=== N1b: verify_business with explicit MAIN targets + fault flag -> fails at FIRST check, no writes ===
+[FAIL] 写入前目标门禁（显式隔离实例，非主项目）  -- 业务套件写入前置门禁: 目标绑定校验失败 -> 目标 hris 是主部署项目（compose.yaml name=hris）——测试写入被拒绝; 目标命中主实例缺省值（base=http://127.0.0.1:13000 app=hris-app-1 db=hris-postgres-1）——测试写入被拒绝
+
+=== 结果汇总 ===
+通过 0 / 1
+  失败: 写入前目标门禁（显式隔离实例，非主项目） -- 业务套件写入前置门禁: 目标绑定校验失败 -> 目标 hris 是主部署项目（compose.yaml name=hris）——测试写入被拒绝; 目标命中主实例缺省值（base=http://127.0.0.1:13000 app=hris-app-1 db=hris-postgres-1）——测试写入被拒绝
+exit=1
+
+=== main instance counts AFTER negative tests (must equal before: 5 reqs [73,84,85,86,87], 21 employees) ===
+{"requests_total": 5, "requests_by_status": {"APPROVED": 2, "REJECTED": 1, "PENDING": 2}, "employees_total": 21, "request_ids": [73, 84, 85, 86, 87]}

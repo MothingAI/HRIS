@@ -1,0 +1,27 @@
+
+-- HR：编辑李思远(E002) 填紧急联系人并保存 --
+  ok: 打开 E002 编辑抽屉: clicked
+  ok: 编辑表单出现 紧急联系人 输入框: (empty)
+  shot: n3-lowcode-1-edit-empty.png
+  ok: 填入联系人: set
+  shot: n3-lowcode-2-filled.png
+  ok: 点击提交: clicked
+  shot: n3-lowcode-3-saved.png
+
+-- HR：重新打开 E002 回显 --
+  ok: 重新打开: clicked
+  ok: 保存后回显: 王芳 13800001234
+  shot: n3-lowcode-4-reopen.png
+
+-- HR：旧记录 E004（从未填写）正常打开 --
+  ok: 打开 E004: clicked
+  ok: 旧记录值为空且可打开: (empty)
+  shot: n3-lowcode-5-old-record.png
+
+-- 员工A：我的档案出现紧急联系人列与本人值 --
+我的档案: {"heads":["工号","姓名","部门","职位","直属主管","任职状态","紧急联系人",""],"row":"E002李思远技术部软件工程师王建国试用中王芳 13800001234"}
+  ok: 表头含 紧急联系人: ["工号","姓名","部门","职位","直属主管","任职状态","紧急联系人",""]
+  ok: 李思远行显示本人值
+  shot: n3-lowcode-6-employee-view.png
+API 复核 E002.emergencyContact = 王芳 13800001234
+  ok: 后端字段持久化（非仅 UI）

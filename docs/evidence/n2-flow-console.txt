@@ -1,0 +1,149 @@
+
+== [1] 员工B 登录，打开 我的转正 ==
+  ok: 登录成功 employee.b@example.com
+  ok: 菜单点击 我的转正
+  [net] GET /api/confirmation_requests:list?pageSize=20&filter=%7B%22status%22%3A%7B%22%24ne%22%3A%22DRAFT%22%7D%7D -> 200
+  [net] GET /api/confirmation_requests:list?pageSize=20&filter=%7B%22status%22%3A%7B%22%24eq%22%3A%22DRAFT%22%7D%7D -> 200
+  ok: 初始草稿表 0 行（实际 0）
+  ok: 历史申请表存在
+
+== [2] 新建转正申请 -> 保存草稿 ==
+  ok: 打开新建抽屉
+  ok: 填写抽屉表单 (filled:2)
+  ok: 点击保存草稿
+  [net] POST /api/confirmation_requests:saveDraft -> 200
+  [net] GET /api/confirmation_requests:list?pageSize=20&filter=%7B%22status%22%3A%7B%22%24eq%22%3A%22DRAFT%22%7D%7D -> 200
+  ok: 抽屉已自动关闭
+  ok: 草稿表 1 行（blocksToRefresh 生效）: 草稿N2验收：郑雪的转正自我评价（初稿）N2验收：完成产品调研与需求文档规范化编辑草稿提交 To pick up a draggable item, press
+  shot: n2v2-1-draft-saved.png
+  ok: API: 恰好 1 条 DRAFT (id=84)
+
+== [3] 编辑同一草稿（带 requestId，不新建） ==
+  ok: 打开编辑抽屉
+  [net] GET /api/confirmation_requests:get?filterByTk=84 -> 200
+  ok: 编辑表单回显已存内容: N2验收：郑雪的转正自我评价（初稿）
+  ok: 填写抽屉表单 (filled:2)
+  ok: 点击保存修改
+  [net] POST /api/confirmation_requests:saveDraft -> 200
+  [net] GET /api/confirmation_requests:get?filterByTk=84 -> 200
+  [net] GET /api/confirmation_requests:list?pageSize=20&filter=%7B%22status%22%3A%7B%22%24eq%22%3A%22DRAFT%22%7D%7D -> 200
+  ok: 草稿表内容已更新: 草稿N2验收：郑雪的转正自我评价（已修订）N2验收：完成产品调研与需求文档规范化；输出竞品分析两份编辑草稿提交 To pick up a draggable i
+  shot: n2v2-2-edit-saved.png
+  ok: API: 仍是同一草稿 id=84（未新建记录）
+
+== [4] 提交草稿 ==
+  ok: 点击提交
+  [net] POST /api/confirmation_requests:submit -> 200
+  [net] GET /api/confirmation_requests:list?pageSize=20&filter=%7B%22status%22%3A%7B%22%24eq%22%3A%22DRAFT%22%7D%7D -> 200
+  [net] GET /api/confirmation_requests:list?pageSize=20&filter=%7B%22status%22%3A%7B%22%24ne%22%3A%22DRAFT%22%7D%7D -> 200
+  ok: 历史表 1 行待审批: 待审批N2验收：郑雪的转正自我评价（已修订）2026-11-11 23:09:55查看详情与轨迹 To pick up a draggable item, press the space bar. W
+  shot: n2v2-3-submitted.png
+  ok: API: status=PENDING approverId=10
+
+== [5] 主管B 登录，查看待办与轨迹 ==
+  ok: 登录成功 manager.b@example.com
+  ok: 菜单点击 待我审批
+  [net] GET /api/confirmation_requests:list?pageSize=20&appends%5B%5D=employee&filter=%7B%22status%22%3A%7B%22%24eq%22%3A%22PENDING%22%7D%7D -> 200
+  ok: 待办行含郑雪: 郑雪待审批N2验收：郑雪的转正自我评价（已修订）N2验收：完成产品调研与需求文档规范化；输出竞品分析两份2026-11-11 23:09:55通过驳回查看详情与轨迹 To pick up a drag
+  ok: 不出现其他主管的待办（李思远在主管A名下）
+  shot: n2v2-4-mgr-pending.png
+  ok: 打开详情与轨迹
+  [net] GET /api/confirmation_requests:get?filterByTk=84&appends%5B%5D=employee&appends%5B%5D=approver -> 200
+  [net] GET /api/confirmation_requests/84/approvalActions:list?pageSize=20&appends%5B%5D=actorUser&filter=%7B%7D -> 200
+  ok: 轨迹 1 行(提交): 提交郑雪2026-11-11 23:09:55
+  shot: n2v2-5-traj-submitted.png
+
+== [6] 驳回：先试空意见（前端拦截或服务端 400 兜底） ==
+  ok: 打开驳回抽屉
+  [net] GET /api/confirmation_requests:get?filterByTk=84 -> 200
+  ok: 空意见点确认驳回
+  [net] POST /api/confirmation_requests:reject -> 400
+  反馈: ["驳回必须填写审批意见"]
+  ok: 空意见被服务端 400 拒绝（400）
+  ok: 界面可见错误反馈: ["驳回必须填写审批意见"]
+  shot: n2v2-6-reject-required.png
+
+== [7] 填意见 -> 确认驳回 ==
+  ok: 填写抽屉表单 (filled:1)
+  ok: 点击确认驳回
+  [net] POST /api/confirmation_requests:reject -> 200
+  [net] GET /api/confirmation_requests:list?pageSize=20&appends%5B%5D=employee&filter=%7B%22status%22%3A%7B%22%24eq%22%3A%22PENDING%22%7D%7D -> 200
+  [net] GET /api/confirmation_requests:get?filterByTk=84 -> 200
+  ok: 待办行已消失（blocksToRefresh 生效）
+  shot: n2v2-7-rejected.png
+  ok: API: REJECTED 意见已入库
+
+== [8] 员工B 查看驳回意见与轨迹 ==
+  ok: 登录成功 employee.b@example.com
+  ok: 菜单点击 我的转正
+  [net] GET /api/confirmation_requests:list?pageSize=20&filter=%7B%22status%22%3A%7B%22%24eq%22%3A%22DRAFT%22%7D%7D -> 200
+  [net] GET /api/confirmation_requests:list?pageSize=20&filter=%7B%22status%22%3A%7B%22%24ne%22%3A%22DRAFT%22%7D%7D -> 200
+  ok: 行内可见审批意见: 已驳回N2验收：郑雪的转正自我评价（已修订）2026-11-11 23:09:552026-11-11 23:10:25N2验收驳回：材料不完整，请补充试用期关键交付清单查看详情与轨迹 To pick up a draggable item
+  ok: 草稿表空
+  shot: n2v2-8-emp-history-rejected.png
+  ok: 打开轨迹
+  [net] GET /api/confirmation_requests:get?filterByTk=84&appends%5B%5D=employee&appends%5B%5D=approver -> 200
+  [net] GET /api/confirmation_requests/84/approvalActions:list?pageSize=20&appends%5B%5D=actorUser&filter=%7B%7D -> 200
+  ok: 轨迹 2 行（提交+驳回）: 提交郑雪2026-11-11 23:09:55 || 驳回林芳N2验收驳回：材料不完整，请补充试用期关键交付清单2026-11-11 23:10:25
+  shot: n2v2-9-emp-traj-rejected.png
+  ok: 历史表行按钮只读: []
+
+== [9] 重新申请（旧申请保留） -> 提交 ==
+  ok: 打开重新申请抽屉
+  ok: 填写抽屉表单 (filled:2)
+  ok: 保存新草稿
+  [net] POST /api/confirmation_requests:saveDraft -> 200
+  [net] GET /api/confirmation_requests:list?pageSize=20&filter=%7B%22status%22%3A%7B%22%24eq%22%3A%22DRAFT%22%7D%7D -> 200
+  ok: 历史表仍保留已驳回行（旧申请未动）
+  shot: n2v2-10-reapplied.png
+  ok: API: 员工B共 2 条申请（1 REJECTED + 1 DRAFT）
+  ok: 新草稿 id=85 不等于旧申请 id=84
+  ok: 提交新草稿
+  [net] POST /api/confirmation_requests:submit -> 200
+  [net] GET /api/confirmation_requests:list?pageSize=20&filter=%7B%22status%22%3A%7B%22%24eq%22%3A%22DRAFT%22%7D%7D -> 200
+  [net] GET /api/confirmation_requests:list?pageSize=20&filter=%7B%22status%22%3A%7B%22%24ne%22%3A%22DRAFT%22%7D%7D -> 200
+  ok: 历史 2 行（待审批+已驳回）: 已驳回N2验收：郑雪的转正自我评价（已修订）2026-11-11 23:09:5 | 待审批N2重新申请：已补充试用期关键交付清单2026-11-11 23:10:5
+  shot: n2v2-11-resubmitted.png
+
+== [10] 主管B 通过 ==
+  ok: 登录成功 manager.b@example.com
+  ok: 菜单点击 待我审批
+  [net] GET /api/confirmation_requests:list?pageSize=20&appends%5B%5D=employee&filter=%7B%22status%22%3A%7B%22%24eq%22%3A%22PENDING%22%7D%7D -> 200
+  ok: 点击通过
+  [net] POST /api/confirmation_requests:approve -> 200
+  [net] GET /api/confirmation_requests:list?pageSize=20&appends%5B%5D=employee&filter=%7B%22status%22%3A%7B%22%24eq%22%3A%22PENDING%22%7D%7D -> 200
+  shot: n2v2-12-approved.png
+  ok: API: 新申请 APPROVED
+
+== [11] 员工B 转正核对 ==
+  ok: 登录成功 employee.b@example.com
+  ok: 菜单点击 我的档案
+  ok: 任职状态=正式: E011郑雪产品部产品经理林芳正式
+  shot: n2v2-13-profile-regular.png
+  ok: 菜单点击 我的转正
+  [net] GET /api/confirmation_requests:list?pageSize=20&filter=%7B%22status%22%3A%7B%22%24eq%22%3A%22DRAFT%22%7D%7D -> 200
+  [net] GET /api/confirmation_requests:list?pageSize=20&filter=%7B%22status%22%3A%7B%22%24ne%22%3A%22DRAFT%22%7D%7D -> 200
+  ok: 历史含已通过行
+  ok: 打开已通过轨迹
+  [net] GET /api/confirmation_requests:get?filterByTk=85&appends%5B%5D=employee&appends%5B%5D=approver -> 200
+  [net] GET /api/confirmation_requests/85/approvalActions:list?pageSize=20&appends%5B%5D=actorUser&filter=%7B%7D -> 200
+  ok: 轨迹含通过: 提交郑雪2026-11-11 23:10:54 || 通过林芳2026-11-11 23:11:16
+  shot: n2v2-14-traj-approved.png
+
+FATAL: ASSERT FAIL: 演示单 73 仍为 PENDING（未触碰）
+员工B 查单73（应无数据）: {"data":null}
+  ok: 行级隔离生效
+管理员查单73: status=PENDING
+  ok: 演示单 73 仍 PENDING（未触碰）
+
+-- 员工B：历史表行按钮只读 --
+历史表行按钮: ["已驳回","查看详情与轨迹","已通过"]
+FAIL: 历史表出现非法按钮
+  shot: n2v2-15-hist-readonly.png
+
+-- 主管A：待我审批仍含演示单73（李思远），按钮可用 --
+主管A 待办: {"rows":1,"text":["李思远待审批试用期间完成核心模块开发与联调，具备独立负责模块的能力。熟悉了团队研发流程与低代码平台配置方式。2026-11-10 23:43:20通过驳回查看详情与轨迹 To pick up a draggable item, press the space bar. While dragging,"]}
+  ok: 73 行在列，通过/驳回按钮齐全（未做任何点击）
+  shot: n2v2-16-manager-a-73.png
+
+== 收尾核查存在失败 ==

@@ -1,0 +1,57 @@
+REV-010 prep_demo 重写验证（隔离实例 hris-fix，2026-11-18，全部实跑输出）
+
+实例：hris-fix-app-1 / hris-fix-postgres-1，NB_BASE=http://127.0.0.1:13004
+脚本：scripts/prep_demo.py（重写：工具自有身份 DEMO-NN + demoNN@example.com；
+      默认=预填待办；--blank=空白开始；--reset 已移除）
+
+===== 第 1 轮：prep_demo（新建 DEMO-01）=====
+[prep] 新建工具身份 DEMO-01（历史一律保留）
+[PASS] 创建工具员工 DEMO-01
+[PASS] 创建账号 demo01@example.com
+[PASS] 账号绑定 DEMO-01  -- user=7
+[PASS] saveDraft 成功 / [PASS] submit 成功且 PENDING (request id=2)
+[PASS] 主管A 待办包含 演示员工01
+[prep] 员工总数 21 | 在职 19 | 试用 9 | 离职 2；待审批 1 | 已批 0 | 已驳 0
+通过 6 / 6，exit=0
+
+manager.a 真实会话批准 request 2：
+approve: APPROVED / DEMO-01 status: REGULAR / trail: ['SUBMIT', 'APPROVE']
+
+===== 第 2 轮：prep_demo（自动顺延 DEMO-02，历史保留）=====
+[prep] 新建工具身份 DEMO-02（历史一律保留）
+[PASS] 创建工具员工 DEMO-02 / demo02@example.com / 绑定 user=8
+[PASS] submit 成功且 PENDING (request id=3) / 主管A 待办包含 演示员工02
+[prep] 员工总数 22 | 在职 20；待审批 1 | 已批 1 | 已驳 0；工具身份 2 个
+通过 6 / 6，exit=0
+manager.a 批准 request 3：approve r3: APPROVED
+
+===== 两轮后置核验 =====
+req 2: emp=30 status=APPROVED trail=['SUBMIT', 'APPROVE']
+req 3: emp=31 status=APPROVED trail=['SUBMIT', 'APPROVE']
+seed employees: 20 | E002: ['PROBATION']        # 种子员工与状态未动
+
+===== 第 3 轮就绪 + --blank + 复用 =====
+prep_demo（第 3 轮）→ 新建 DEMO-03，request id=4 PENDING，通过 6/6
+prep_demo --blank：
+[prep] 空白开始：已清工具身份在途单 1 条（APPROVED/REJECTED 历史与种子数据未动）
+[PASS] 空白模式后无工具身份在途单
+[prep] 待审批 0 | 已批 2 | 已驳 0        # 只清在途，两轮已批历史仍在
+通过 1 / 1，exit=0
+prep_demo（blank 后默认模式）：
+[prep] 复用最新工具身份 DEMO-03（PROBATION 且名下无申请）
+[PASS] submit 成功且 PENDING (request id=5) / 主管A 待办包含 演示员工03
+通过 4 / 4，exit=0
+
+===== 驳回路径 =====
+manager.a 驳回 request 5：reject r5: REJECTED
+prep_demo（驳回后）：
+[PASS] 创建账号 demo04@example.com / 绑定 DEMO-04
+[PASS] submit 成功且 PENDING (request id=6) / 主管A 待办包含 演示员工04
+[prep] 待审批 1 | 已批 2 | 已驳 1 | 工具身份 4 个   # 驳回历史保留
+通过 6 / 6，exit=0
+
+===== --reset 移除 =====
+python scripts/prep_demo.py --reset → exit=1，提示改用 --blank/默认模式
+
+结论：两轮完整演示后已批历史（2 条 APPROVED + 轨迹）完整；种子员工 20 人与
+E002=PROBATION 未动；空白开始只清工具在途单；驳回后顺延新身份且保留驳回历史。
