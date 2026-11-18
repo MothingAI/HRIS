@@ -10,7 +10,7 @@
 | 功能验收 | ACCEPTED；N1–N5已完成，REV-001–013均CLOSED |
 | 验收依据 | [摘要](docs/quality/ACCEPTANCE.md)、[验证报告](docs/quality/VERIFICATION.md) |
 | 文档整理 | ACCEPTED：用户已确认并授权提交推送 |
-| Git | IN_PROGRESS：发布当前整理版本至MothingAI/HRIS |
+| Git | 已推送至 https://github.com/MothingAI/HRIS ，远程分支main |
 | 入口 | http://127.0.0.1:13000 |
 | 历史 | 本地 .tools/project-history/release-20261118/；仅归档，不是活动黑板 |
 
@@ -27,7 +27,7 @@
 - 将公开文档分为design、operations、demo、quality、evidence。
 - 公开入口采用业务系统介绍，个人说明、早期提示词与过程记录保留本地。
 - 保留scripts位置和插件手写dist源码，避免破坏初始化链。
-- 用户先查看整体结构和README，再决定Git提交与推送。
+- 用户已确认整体结构和README，并授权提交与推送。
 
 ### 2026-11-18T14:38:30+08:00 · Codex · 文档与仓库整理完成 · READY_FOR_USER_REVIEW
 
@@ -42,3 +42,10 @@
 - 用户已确认目录和README并明确授权推送至 https://github.com/MothingAI/HRIS.git 。
 - 远程为空；以当前整理后的工作树创建独立首次提交，旧开发历史和归档继续保留本地，不推送旧历史。
 - 只纳入环境模板、协作文档、业务配置、部署、插件、运行验证脚本和当前文档证据，不纳入.env、.tools、backups或依赖。
+
+### 2026-11-18T14:45:15+08:00 · Codex · 首次发布完成 · PUBLISHED
+
+- 当前整理版本首次提交 0a2264a83518662a21aadc112bdc6314a995cd58 已成功推送至 origin/main。
+- 本地发布分支codex/github-release跟踪origin/main，原master开发历史仍保留本地；未使用强制推送，未推送旧历史。
+- 首次提交138个文件；暂存内容检查通过，插件手写源码已纳入，.env/.tools/backups/依赖未纳入，当前本地密钥值与JWT未命中，指定旧措辞未命中。
+- 本次仅发布既有验收版本及文档整理，没有补跑或声称全套测试重新通过。发布记录随后以普通提交同步。
